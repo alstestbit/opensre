@@ -69,6 +69,10 @@ class BaseTool(ABC):
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
+        # Skip validation for abstract intermediate classes that haven't filled
+        # in the identity fields yet (e.g. mixins or test stubs).
+        if ABC in cls.__bases__:
+            return
         if not getattr(cls, "my_tool_name", ""):
             raise TypeError(f"{cls.__name__} must define 'my_tool_name'")
         if not getattr(cls, "MyToolName", ""):
@@ -89,22 +93,4 @@ class BaseTool(ABC):
     def run(self, params: ToolParams) -> ToolResult:
         """Execute the tool and return a :class:`ToolResult`."""
 
-    # --- convenience -------------------------------------------------------
-
-    def safe_run(self, raw: Dict[str, Any]) -> ToolResult:
-        """Validate params then run, catching unexpected exceptions."""
-        if not self.is_available():
-            return ToolResult.fail(f"Tool '{self.my_tool_name}' is not available")
-        try:
-            params = self.extract_params(raw)
-            return self.run(params)
-        except (KeyError, ValueError) as exc:
-            logger.warning("[%s] param error: %s", self.my_tool_name, exc)
-            return ToolResult.fail(str(exc))
-        except Exception as exc:  # noqa: BLE001
-            logger.exception("[%s] unexpected error", self.my_tool_name)
-            return ToolResult.fail(f"Unexpected error: {exc}")
-
-    def __repr__(self) -> str:
-        available = self.is_available() if hasattr(self, "is_available") else "?"
-        return f"<Tool name={self.my_tool_name!r} available={available}>"
+    # --- conve
