@@ -49,6 +49,15 @@ class ToolResult:
         """Convenience alias for checking success; I find this reads more naturally."""
         return self.success
 
+    def unwrap(self) -> Any:
+        """Return data if successful, otherwise raise a RuntimeError with the error message.
+
+        Handy for quick scripts where I don't want to check is_ok() every time.
+        """
+        if not self.success:
+            raise RuntimeError(f"Tool failed: {self.error}")
+        return self.data
+
 
 class BaseTool(ABC):
     """Abstract base class that every opensre tool must implement.
@@ -87,7 +96,4 @@ class BaseTool(ABC):
         """Return True when the tool's dependencies / credentials are present."""
 
     @abstractmethod
-    def extract_params(self, raw: Dict[str, Any]) -> ToolParams:
-        """Validate *raw* input and return a typed :class:`ToolParams` object.
-
-        Raise ``ValueError`` with a descriptive 
+    def extract_params(self, raw: Dict[str, Any
