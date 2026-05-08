@@ -45,6 +45,10 @@ class ToolResult:
     def fail(cls, error: str, **metadata: Any) -> "ToolResult":
         return cls(success=False, error=error, metadata=metadata)
 
+    def is_ok(self) -> bool:
+        """Convenience alias for checking success; I find this reads more naturally."""
+        return self.success
+
 
 class BaseTool(ABC):
     """Abstract base class that every opensre tool must implement.
@@ -86,11 +90,4 @@ class BaseTool(ABC):
     def extract_params(self, raw: Dict[str, Any]) -> ToolParams:
         """Validate *raw* input and return a typed :class:`ToolParams` object.
 
-        Raise ``ValueError`` with a descriptive message on validation failure.
-        """
-
-    @abstractmethod
-    def run(self, params: ToolParams) -> ToolResult:
-        """Execute the tool and return a :class:`ToolResult`."""
-
-    # --- conve
+        Raise ``ValueError`` with a descriptive 
