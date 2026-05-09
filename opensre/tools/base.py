@@ -58,6 +58,14 @@ class ToolResult:
             raise RuntimeError(f"Tool failed: {self.error}")
         return self.data
 
+    def unwrap_or(self, default: Any) -> Any:
+        """Return data if successful, otherwise return the given default value.
+
+        A softer alternative to unwrap() when a fallback makes more sense than
+        raising an exception.
+        """
+        return self.data if self.success else default
+
 
 class BaseTool(ABC):
     """Abstract base class that every opensre tool must implement.
@@ -87,13 +95,4 @@ class BaseTool(ABC):
         if ABC in cls.__bases__:
             return
         if not getattr(cls, "my_tool_name", ""):
-            raise TypeError(f"{cls.__name__} must define 'my_tool_name'")
-        if not getattr(cls, "MyToolName", ""):
-            raise TypeError(f"{cls.__name__} must define 'MyToolName'")
-
-    @abstractmethod
-    def is_available(self) -> bool:
-        """Return True when the tool's dependencies / credentials are present."""
-
-    @abstractmethod
-    def extract_params(self, raw: Dict[str, Any
+            raise TypeError(f"{cls.__name__} must define 'my_tool_nam
